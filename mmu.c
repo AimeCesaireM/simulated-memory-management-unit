@@ -52,43 +52,39 @@ mmu_translate (vmsim_addr_t sim_addr) {
   uint32_t middle_10_bits = sim_addr & 0x3ff000;
   uint32_t upper_10_bits = sim_addr & 0xffc00000;
 
-  //uint32_t upt_index = upper_10_bits >> 22 ; //cut off the lower 22 zeros
+ 
   uint32_t upt_index = sim_addr >> 22;
-  printf ("Offset: %x \n", offset);
+  upt_index = upt_index * 4;
+  //  printf ("Offset: %x \n", offset);
   printf("UPT Index: %d \n", upt_index);
   //test the first condition
+
   while (upper_pt_addr + upt_index == 0){
-    vmsim_map_fault(sim_addr);// i should try recursion if with recursion if this fails **
-    //mmu_translate(sim_addr);
+    vmsim_map_fault(sim_addr);
   }
   
   uint32_t lpt_index = middle_10_bits >> 12 ; // cut off the lower 12 bits
+  lpt_index = lpt_index * 4;
   printf("LPT index: %d \n", lpt_index);
 
   vmsim_addr_t lower_pt_addr = upper_pt_addr + upt_index; //get the base address of the lpt
-  printf("lower page table address: %x \n", lower_pt_addr);
+  //printf("lower page table address: %x \n", lower_pt_addr);
 
   while (upper_pt_addr + upt_index != 0 && lower_pt_addr + lpt_index == 0){
-    vmsim_map_fault(sim_addr); //** if with recursion maybe ?
-    //mmu_translate (sim_addr);
+    vmsim_map_fault(sim_addr);
   }
 
-  if (upper_pt_addr + upt_index != 0 && lower_pt_addr + lpt_index != 0){
+  //if (upper_pt_addr + upt_index != 0 && lower_pt_addr + lpt_index != 0){
     vmsim_addr_t real_page_addr = (vmsim_addr_t) lower_pt_addr + lpt_index; // the real page should be here
-    printf(" real page address: %x \n", real_page_addr);
-    //uint32_t real_page_temp = (uint32_t) real_page_addr; // make a copy to not screw up things
-    // real_page_temp = real_page_temp << 12 ; //make place for the offset , we have 12 zeros tailing the number
-    //real_page_temp = real_page_temp | 0xfff; //flip all the 12 0s at tail to 1s
-    //real_page_temp = real_page_temp + offset ; // copy the offset into place
-
+    //printf(" real page address: %x \n", real_page_addr);
+            
     vmsim_addr_t real_address = (vmsim_addr_t) real_page_addr + offset;
     printf("real address: %x \n", real_address);  
 
     return real_address;
-  }
-  
-  // REPLACE THIS WITH YOUR OWN, FULL IMPLEMENTATION OF THIS FUNCTION.
-  return 0;
-  
 }
+  
+//  return 0;
+  
+  //}
 // ==============================================================================
