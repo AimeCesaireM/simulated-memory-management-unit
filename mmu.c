@@ -58,24 +58,32 @@ mmu_translate (vmsim_addr_t sim_addr) {
   //  printf ("Offset: %x \n", offset);
   printf("UPT Index: %d \n", upt_index);
   //test the first condition
+  pt_entry_t upt_entry;
+  vmsim_read_real(&upt_entry, (vmsim_addr_t) upper_pt_addr + upt_index, sizeof(uint32_t)); // read the contents of the upt[index] into upt_entry
 
-  while (upper_pt_addr + upt_index == 0){
+  if (upper_pt_addr + upt_index == 0){
     vmsim_map_fault(sim_addr);
+    mmu_translate(sim_addr);
   }
   
   uint32_t lpt_index = middle_10_bits >> 12 ; // cut off the lower 12 bits
   lpt_index = lpt_index * 4;
   printf("LPT index: %d \n", lpt_index);
 
-  vmsim_addr_t lower_pt_addr = upper_pt_addr + upt_index; //get the base address of the lpt
+		  vmsim_addr_t lower_pt_addr = (vmsim_addr_t) upt_entry; //get the base address of the lpt
   //printf("lower page table address: %x \n", lower_pt_addr);
+   
 
-  while (upper_pt_addr + upt_index != 0 && lower_pt_addr + lpt_index == 0){
+   if (upper_pt_addr + upt_index != 0 && lower_pt_addr + lpt_index == 0){
     vmsim_map_fault(sim_addr);
-  }
+    mmu_translate(sim_addr);
+}
 
-  //if (upper_pt_addr + upt_index != 0 && lower_pt_addr + lpt_index != 0){
-    vmsim_addr_t real_page_addr = (vmsim_addr_t) lower_pt_addr + lpt_index; // the real page should be here
+  //if (upper_pt_addr + upt_index != 0 && lower_pt_addr + lpt_index != 0)
+    pt_entry_t lpt_entry;
+		  vmsim_read_real(&lpt_entry, (vmsim_addr_t) lower_pt_addr + lpt_index, sizeof(uint32_t));
+		  
+    vmsim_addr_t real_page_addr = (vmsim_addr_t) lpt_entry + lpt_index; // the real page should be here
     //printf(" real page address: %x \n", real_page_addr);
             
     vmsim_addr_t real_address = (vmsim_addr_t) real_page_addr + offset;
