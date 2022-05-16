@@ -63,6 +63,7 @@ mmu_translate (vmsim_addr_t sim_addr) {
 
   if (upt_entry == 0){
     vmsim_map_fault(sim_addr);
+    // EE: Need to /return/ mmu_translate() to get the result back to the original caller.
     mmu_translate(sim_addr);
   }
   
@@ -78,6 +79,7 @@ mmu_translate (vmsim_addr_t sim_addr) {
 
    if (upt_entry != 0 && lpt_entry == 0){
     vmsim_map_fault(sim_addr);
+    // EE: Need to /return/ mmu_translate() to get the result back to the original caller.
     mmu_translate(sim_addr);
    }
   

@@ -1,0 +1,5 @@
+rm -rf mmu.o libvmsim.so iterative-walk random-hop
+gcc -std=gnu99 -fPIC  -c mmu.c
+gcc -std=gnu99 -fPIC -shared -o libvmsim.so vmsim.o mmu.o
+gcc -std=gnu99 -fPIC  -L. -o iterative-walk iterative-walk.c -lvmsim
+gcc -std=gnu99 -fPIC  -L. -o random-hop random-hop.c -lvmsim
